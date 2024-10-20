@@ -1,4 +1,3 @@
-
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,7 +19,7 @@ public class Main {
                 }
                 return n;
             } catch (NumberFormatException ex) {
-                System.err.println("Re-input");
+                System.err.println("Input must be from " + min + " to " + max);
             }
         }
     }
@@ -34,12 +33,12 @@ public class Main {
                 if (result.equalsIgnoreCase(format.format(date))) {
                     return result;
                 } else {
-                    System.err.println("Re-input");
+                    System.err.println("Input must be a date type (dd-MM-yyyy)");
                 }
             } catch (NumberFormatException ex) {
-                System.err.println("Re-input");
+                System.err.println("Input must be a date type (dd-MM-yyyy)");
             } catch (ParseException ex) {
-                System.err.println("Re-input");
+                System.err.println("Input must be a date type (dd-MM-yyyy)");
             }
         }
     }
@@ -48,7 +47,7 @@ public class Main {
         while (true) {
             String result = in.nextLine().trim();
             if (result.length() == 0) {
-                System.err.println("Not empty.");
+                System.err.println("Input must be a string");
             } else {
                 return result;
             }
@@ -61,7 +60,7 @@ public class Main {
                 int result = Integer.parseInt(in.nextLine());
                 return result;
             } catch (NumberFormatException ex) {
-                System.err.println("Re-input");
+                System.err.println("Input must be a number");
             }
         }
     }
@@ -87,33 +86,48 @@ public class Main {
         }
     }
 
-    private static String checkInputPlan() {
+    private static String checkInputPlan(String planFrom) {
         while (true) {
             String result = checkInputString();
             if (result.matches(PLAN_VALID) && Double.parseDouble(result) >= 8.0
                     && Double.parseDouble(result) <= 17.5) {
-                return result;
+                if (planFrom == null || Double.parseDouble(result) > Double.parseDouble(planFrom)) {
+                    return result;
+                } else {
+                    System.err.println("Plan To must be greater than Plan From.");
+                }
             } else {
-                System.err.println("Re-input.");
+                System.err.println("Input must be in the range 8.0 - 17.5 (8.0, 8.5, 9.0,... 17.0, 17.5)");
+            }
+        }
+    }
+
+    private static String checkInputName() {
+        while (true) {
+            String input = checkInputString();
+            if (!input.matches("[a-zA-Z ]+")) {
+                System.out.println("Input must contain only letters and spaces. Please try again.");
+            } else {
+                return input;
             }
         }
     }
 
     private static void addTask(ArrayList<Task> lt, int id) {
         System.out.print("Enter Requirement Name: ");
-        String requirementName = checkInputString();
+        String requirementName = checkInputName();
         System.out.print("Enter Task Type: ");
         String taskTypeId = checkInputTaskTypeId();
         System.out.print("Enter Date: ");
         String date = checkInputDate();
         System.out.print("Enter From: ");
-        String planFrom = checkInputPlan();
+        String planFrom = checkInputPlan(null);
         System.out.print("Enter To: ");
-        String planTo = checkInputPlan();
+        String planTo = checkInputPlan(planFrom);
         System.out.print("Enter Assignee: ");
-        String assign = checkInputString();
+        String assign = checkInputName();
         System.out.print("Enter Reviewer: ");
-        String reviewer = checkInputString();
+        String reviewer = checkInputName();
         lt.add(new Task(id, taskTypeId, requirementName, date, planFrom, planTo, assign, reviewer));
         System.out.println("Add Task Success.");
     }
@@ -126,9 +140,6 @@ public class Main {
         int findId = findTaskExist(lt);
         if (findId != -1) {
             lt.remove(findId);
-            for (int i = findId; i < lt.size(); i++) {
-                lt.get(i).setId(lt.get(i).getId() - 1);
-            }
             System.err.println("Delete success.");
         }
     }
@@ -160,8 +171,7 @@ public class Main {
                     lt.get(i).getDate(),
                     Double.parseDouble(lt.get(i).getPlanTo()) - Double.parseDouble(lt.get(i).getPlanFrom()),
                     lt.get(i).getAssign(),
-                    lt.get(i).getReviewer()
-            );
+                    lt.get(i).getReviewer());
 
         }
     }
